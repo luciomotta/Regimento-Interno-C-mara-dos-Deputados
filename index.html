@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RICD – Regimento Interno da Câmara dos Deputados</title>
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:   #1a6b3c;
+      --green-d: #134f2d;
+      --green-l: #e8f5ee;
+      --gold:    #c9a227;
+      --gold-l:  #fdf3d7;
+      --text:    #1e293b;
+      --muted:   #64748b;
+      --bg:      #f1f5f9;
+      --white:   #ffffff;
+      --radius:  12px;
+      --shadow:  0 4px 16px rgba(0,0,0,.10);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ===== Header ===== */
+    header {
+      background: linear-gradient(135deg, var(--green-d) 0%, var(--green) 60%, #2e8b57 100%);
+      color: var(--white);
+      padding: 2.5rem 1.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    header .flag-badge {
+      font-size: 2.5rem;
+      margin-bottom: .5rem;
+      position: relative;
+    }
+    header h1 {
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -.5px;
+      position: relative;
+    }
+    header h1 span { color: var(--gold); }
+    header p {
+      margin-top: .5rem;
+      font-size: .95rem;
+      opacity: .85;
+      position: relative;
+    }
+
+    /* ===== Navigation Tabs ===== */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: .5rem;
+      padding: 1.5rem 1rem .5rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: .6rem 1.6rem;
+      border: 2px solid var(--green);
+      border-radius: 50px;
+      background: transparent;
+      color: var(--green);
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .25s;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--green);
+      color: var(--white);
+    }
+
+    /* ===== Section Wrapper ===== */
+    section { display: none; padding: 1.5rem 1rem 3rem; max-width: 1200px; margin: 0 auto; }
+    section.active { display: block; }
+
+    /* ===== Cards Section ===== */
+    .section-title {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--green-d);
+      margin-bottom: 1.5rem;
+    }
+    .section-title span { color: var(--gold); }
+
+    /* Filter chips */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .chip {
+      padding: .3rem 1rem;
+      border-radius: 50px;
+      border: 1.5px solid var(--green);
+      background: transparent;
+      color: var(--green);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .chip.active, .chip:hover { background: var(--green); color: var(--white); }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.25rem;
+    }
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.4rem;
+      border-left: 5px solid var(--green);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.13); }
+    .card .tag {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: .2rem .7rem;
+      border-radius: 50px;
+      background: var(--green-l);
+      color: var(--green-d);
+      margin-bottom: .6rem;
+    }
+    .card .art {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: .3rem;
+    }
+    .card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--green-d);
+      margin-bottom: .5rem;
+    }
+    .card p {
+      font-size: .88rem;
+      color: var(--muted);
+    }
+    .card .highlight {
+      margin-top: .8rem;
+      background: var(--gold-l);
+      border-left: 3px solid var(--gold);
+      border-radius: 4px;
+      padding: .5rem .8rem;
+      font-size: .82rem;
+      color: #7a5c00;
+    }
+    .card.hidden { display: none; }
+
+    /* ===== FlashCards Section ===== */
+    .flashcard-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .fc-btn {
+      padding: .6rem 1.4rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: .9rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .fc-btn.prev, .fc-btn.next {
+      background: var(--green);
+      color: var(--white);
+    }
+    .fc-btn.prev:hover, .fc-btn.next:hover { background: var(--green-d); }
+    .fc-btn.shuffle {
+      background: var(--gold);
+      color: var(--white);
+    }
+    .fc-btn.shuffle:hover { background: #b08a1a; }
+    .fc-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .fc-counter {
+      font-size: .9rem;
+      color: var(--muted);
+      font-weight: 600;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* Progress bar */
+    .fc-progress-wrap {
+      max-width: 500px;
+      margin: 0 auto 1.5rem;
+      background: #e2e8f0;
+      border-radius: 50px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .fc-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+      border-radius: 50px;
+      transition: width .4s;
+    }
+
+    /* The flip card */
+    .fc-scene {
+      perspective: 900px;
+      max-width: 560px;
+      margin: 0 auto 1rem;
+      cursor: pointer;
+    }
+    .fc-card {
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+      transition: transform .55s;
+      transform-style: preserve-3d;
+    }
+    .fc-card.flipped { transform: rotateY(180deg); }
+    .fc-face {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .fc-face.front {
+      background: linear-gradient(135deg, var(--green) 0%, #2e8b57 100%);
+      color: var(--white);
+    }
+    .fc-face.front .fc-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: .7;
+      margin-bottom: .7rem;
+    }
+    .fc-face.front .fc-category {
+      font-size: .78rem;
+      background: rgba(255,255,255,.2);
+      border-radius: 50px;
+      padding: .2rem .8rem;
+      margin-bottom: 1rem;
+    }
+    .fc-face.front h2 {
+      font-size: clamp(1rem, 3vw, 1.3rem);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .fc-face.front .fc-hint {
+      margin-top: 1.2rem;
+      font-size: .78rem;
+      opacity: .65;
+    }
+    .fc-face.back {
+      background: var(--white);
+      color: var(--text);
+      transform: rotateY(180deg);
+    }
+    .fc-face.back .fc-label {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gold);
+      margin-bottom: .7rem;
+    }
+    .fc-face.back .fc-art {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+    .fc-face.back p {
+      font-size: .93rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .fc-face.back strong { color: var(--green-d); }
+
+    .fc-flip-hint {
+      text-align: center;
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .fc-flip-hint span { color: var(--green); font-weight: 600; }
+
+    /* Category dots legend */
+    .fc-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .5rem .9rem;
+      max-width: 560px;
+      margin: 1.2rem auto 0;
+    }
+    .fc-legend-item {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: .82rem;
+      color: var(--muted);
+      border-top: 1px solid #e2e8f0;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 480px) {
+      .fc-card { min-height: 310px; }
+      .fc-face { padding: 1.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="flag-badge">🏛️</div>
+  <h1>Regimento Interno da <span>Câmara dos Deputados</span></h1>
+  <p>Resumo em Cards e FlashCards para estudo do RICD · PLF / Concursos</p>
+</header>
+
+<!-- Navigation Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('cards', this)">📋 Cards Resumo</button>
+  <button class="tab-btn" onclick="showTab('flashcards', this)">🃏 FlashCards</button>
+</div>
+
+<!-- ===================== CARDS SECTION ===================== -->
+<section id="cards" class="active">
+  <h2 class="section-title">Artigos Importantes do <span>RICD</span></h2>
+
+  <div class="filter-bar">
+    <button class="chip active" onclick="filterCards('all', this)">Todos</button>
+    <button class="chip" onclick="filterCards('Organização', this)">Organização</button>
+    <button class="chip" onclick="filterCards('Mesa Diretora', this)">Mesa Diretora</button>
+    <button class="chip" onclick="filterCards('Comissões', this)">Comissões</button>
+    <button class="chip" onclick="filterCards('Sessões', this)">Sessões</button>
+    <button class="chip" onclick="filterCards('Processo Legislativo', this)">Processo Legislativo</button>
+    <button class="chip" onclick="filterCards('Votações', this)">Votações</button>
+    <button class="chip" onclick="filterCards('Lideranças', this)">Lideranças</button>
+  </div>
+
+  <div class="cards-grid" id="cardsGrid">
+
+    <!-- ORGANIZAÇÃO -->
+    <div class="card" data-cat="Organização">
+      <span class="tag">Organização</span>
+      <div class="art">Art. 1º</div>
+      <h3>Composição da Câmara</h3>
+      <p>A Câmara dos Deputados é composta de representantes do povo, eleitos pelo sistema proporcional em cada Estado, Território e no Distrito Federal.</p>
+      <div class="highlight">💡 Total de 513 Deputados Federais com mandato de 4 anos.</div>
+    </div>
+
+    <div class="card" data-cat="Organização">
+      <span class="tag">Organização</span>
+      <div class="art">Art. 5º – 7º</div>
+      <h3>Instalação e Posse</h3>
+      <p>A legislatura tem duração de 4 anos. A instalação ocorre em 1º de fevereiro do primeiro ano, com posse dos Deputados e eleição da Mesa. A sessão legislativa ordinária vai de 2 de fevereiro a 17 de julho e de 1º de agosto a 22 de dezembro.</p>
+      <div class="highlight">💡 Recesso: 18 a 31 de julho e 23 de dezembro a 1º de fevereiro.</div>
+    </div>
+
+    <div class="card" data-cat="Organização">
+      <span class="tag">Organização</span>
+      <div class="art">Art. 8º – 11</div>
+      <h3>Órgãos da Câmara</h3>
+      <p>A Câmara é composta pelos seguintes órgãos: Mesa Diretora, Comissões (Permanentes, Temporárias e Mistas), Lideranças e Representações Parlamentares. O Plenário é o órgão soberano de deliberação.</p>
+    </div>
+
+    <!-- MESA DIRETORA -->
+    <div class="card" data-cat="Mesa Diretora">
+      <span class="tag">Mesa Diretora</span>
+      <div class="art">Art. 14 – 16</div>
+      <h3>Composição da Mesa</h3>
+      <p>A Mesa é composta por Presidente, 1º e 2º Vice-Presidentes e 4 Secretários (com 4 suplentes). É eleita no início da legislatura para mandato de 2 anos, vedada a reeleição para o mesmo cargo na eleição imediatamente subsequente.</p>
+      <div class="highlight">💡 Total: 9 membros titulares (1+2+4) e 4 suplentes.</div>
+    </div>
+
+    <div class="card" data-cat="Mesa Diretora">
+      <span class="tag">Mesa Diretora</span>
+      <div class="art">Art. 17 – 20</div>
+      <h3>Competências da Mesa</h3>
+      <p>A Mesa dirige os trabalhos legislativos e administrativos da Câmara. Compete-lhe: propor ao Plenário a criação e extinção de cargos, fixar a remuneração dos servidores, elaborar a proposta orçamentária da Casa e superintender os serviços administrativos.</p>
+    </div>
+
+    <div class="card" data-cat="Mesa Diretora">
+      <span class="tag">Mesa Diretora</span>
+      <div class="art">Art. 17, I</div>
+      <h3>Presidente da Câmara</h3>
+      <p>O Presidente representa a Câmara, dirige os trabalhos do Plenário, mantém a ordem, interpreta e aplica o Regimento, concede a palavra e declara a votação. Também é o 3º na linha de sucessão presidencial.</p>
+      <div class="highlight">💡 O Presidente não vota, salvo em caso de empate em votação secreta.</div>
+    </div>
+
+    <!-- LIDERANÇAS -->
+    <div class="card" data-cat="Lideranças">
+      <span class="tag">Lideranças</span>
+      <div class="art">Art. 9º – 13</div>
+      <h3>Líderes e Bancadas</h3>
+      <p>Cada partido com representação na Câmara tem direito a um Líder e vice-líderes. O Líder é eleito pela respectiva bancada. Partidos com mais de 5% dos assentos podem ter líderes com prerrogativas especiais.</p>
+    </div>
+
+    <div class="card" data-cat="Lideranças">
+      <span class="tag">Lideranças</span>
+      <div class="art">Art. 10 – 11</div>
+      <h3>Líder do Governo e da Maioria</h3>
+      <p>O Governo pode indicar um Líder e até 30 vice-líderes na Câmara. O Líder da Maioria é eleito por maioria simples dos líderes partidários que representem a maioria absoluta dos membros da Casa.</p>
+      <div class="highlight">💡 O Líder da Maioria coordena a pauta legislativa em nome do bloco majoritário da Casa.</div>
+    </div>
+
+    <!-- COMISSÕES -->
+    <div class="card" data-cat="Comissões">
+      <span class="tag">Comissões</span>
+      <div class="art">Art. 22 – 23</div>
+      <h3>Tipos de Comissões</h3>
+      <p>As comissões são <strong>Permanentes</strong> (caráter técnico-legislativo permanente), <strong>Temporárias</strong> (extinguem-se ao fim da legislatura ou com a conclusão do fim para que foram criadas) e <strong>Mistas</strong> (compostas por Deputados e Senadores).</p>
+    </div>
+
+    <div class="card" data-cat="Comissões">
+      <span class="tag">Comissões</span>
+      <div class="art">Art. 24</div>
+      <h3>Competências das Comissões Permanentes</h3>
+      <p>As Comissões Permanentes têm competência para: discutir e votar proposições, realizar audiências públicas, receber petições, convocar Ministros de Estado, e acompanhar os atos do Poder Executivo em suas áreas de atuação.</p>
+      <div class="highlight">💡 As comissões podem ter poder conclusivo: aprovar projetos sem ir ao Plenário (salvo recurso de 1/10 dos Deputados).</div>
+    </div>
+
+    <div class="card" data-cat="Comissões">
+      <span class="tag">Comissões</span>
+      <div class="art">Art. 33 – 36</div>
+      <h3>Composição e Funcionamento</h3>
+      <p>As comissões são compostas proporcionalmente à representação partidária. O mínimo é de 3 membros. As reuniões são abertas ao público, salvo deliberação em contrário. O quórum para deliberação é de maioria absoluta dos membros.</p>
+    </div>
+
+    <div class="card" data-cat="Comissões">
+      <span class="tag">Comissões</span>
+      <div class="art">Art. 49</div>
+      <h3>CPI – Comissão Parlamentar de Inquérito</h3>
+      <p>Criada mediante requerimento de 1/3 dos membros da Câmara, com prazo certo e finalidade determinada. A CPI tem poderes de investigação próprios das autoridades judiciais (pode ouvir testemunhas, decretar quebra de sigilo etc.).</p>
+      <div class="highlight">💡 Mínimo: assinatura de 171 Deputados para instalar uma CPI.</div>
+    </div>
+
+    <!-- SESSÕES -->
+    <div class="card" data-cat="Sessões">
+      <span class="tag">Sessões</span>
+      <div class="art">Art. 66 – 69</div>
+      <h3>Tipos de Sessão</h3>
+      <p>As sessões do Plenário são: <strong>Ordinárias</strong> (das 14h às 19h, de segunda a sexta, durante a sessão legislativa), <strong>Extraordinárias</strong> (fora do horário normal ou do período de recesso) e <strong>Solenes</strong> (para fins especiais, sem deliberação).</p>
+    </div>
+
+    <div class="card" data-cat="Sessões">
+      <span class="tag">Sessões</span>
+      <div class="art">Art. 79 – 81</div>
+      <h3>Quórum</h3>
+      <p>O quórum de <strong>instalação</strong> é de 1/5 dos Deputados (103). O quórum de <strong>deliberação</strong> é de maioria absoluta (257). Para matérias constitucionais, exige-se maioria absoluta (257) e, para aprovação, 3/5 (308) em dois turnos.</p>
+      <div class="highlight">💡 Quórum qualificado para EC: 308 votos favoráveis em dois turnos.</div>
+    </div>
+
+    <div class="card" data-cat="Sessões">
+      <span class="tag">Sessões</span>
+      <div class="art">Art. 83 – 91</div>
+      <h3>Ordem do Dia</h3>
+      <p>A Ordem do Dia é a lista de matérias a serem votadas na sessão. Organizada pela Mesa, inclui primeiramente matérias em regime de urgência, depois as em prioridade e, por último, as em regime de tramitação ordinária.</p>
+    </div>
+
+    <!-- PROCESSO LEGISLATIVO -->
+    <div class="card" data-cat="Processo Legislativo">
+      <span class="tag">Processo Legislativo</span>
+      <div class="art">Art. 100 – 104</div>
+      <h3>Tipos de Proposições</h3>
+      <p>As proposições legislativas são: PEC (Proposta de Emenda Constitucional), PLP (Projeto de Lei Complementar), PL (Projeto de Lei), PDC (Projeto de Decreto Legislativo), PR (Projeto de Resolução) e Emendas.</p>
+    </div>
+
+    <div class="card" data-cat="Processo Legislativo">
+      <span class="tag">Processo Legislativo</span>
+      <div class="art">Art. 120 – 133</div>
+      <h3>Regimes de Tramitação</h3>
+      <p>Tramitação <strong>Ordinária</strong>: prazo normal por todas as comissões. <strong>Prioridade</strong>: prazo de 45 dias em cada comissão. <strong>Urgência</strong>: apreciação imediata, com prazo de 24h para votação. <strong>Urgência Urgentíssima</strong>: votação ainda na mesma sessão.</p>
+    </div>
+
+    <div class="card" data-cat="Processo Legislativo">
+      <span class="tag">Processo Legislativo</span>
+      <div class="art">Art. 153 – 161</div>
+      <h3>Poder de Iniciativa</h3>
+      <p>Podem iniciar o processo legislativo: qualquer Deputado ou Senador, comissões, o Presidente da República, o STF, Tribunais Superiores, o PGR e cidadãos (iniciativa popular: 1% do eleitorado nacional, distribuído em pelo menos 5 estados, com no mínimo 0,3% dos eleitores de cada).</p>
+    </div>
+
+    <div class="card" data-cat="Processo Legislativo">
+      <span class="tag">Processo Legislativo</span>
+      <div class="art">Art. 202 – 203</div>
+      <h3>Medida Provisória (MP)</h3>
+      <p>Editada pelo Presidente da República em caso de relevância e urgência. Tem força de lei imediata e vigência de 60 dias, prorrogáveis por igual período. Deve ser apreciada por comissão mista e depois pelo Plenário de ambas as Casas.</p>
+      <div class="highlight">💡 Se não votada em 45 dias, tranca a pauta da Casa em que estiver.</div>
+    </div>
+
+    <div class="card" data-cat="Processo Legislativo">
+      <span class="tag">Processo Legislativo</span>
+      <div class="art">Art. 192 – 195</div>
+      <h3>Veto Presidencial</h3>
+      <p>O Presidente pode vetar total ou parcialmente um projeto. O veto é apreciado pelo Congresso em sessão conjunta, podendo ser derrubado por maioria absoluta de Deputados e Senadores, em votação secreta.</p>
+    </div>
+
+    <!-- VOTAÇÕES -->
+    <div class="card" data-cat="Votações">
+      <span class="tag">Votações</span>
+      <div class="art">Art. 184 – 191</div>
+      <h3>Formas de Votação</h3>
+      <p>As votações podem ser: <strong>Simbólica</strong> (maioria dos presentes se manifesta sem registro nominal), <strong>Nominal</strong> (por painel eletrônico, com registro do voto de cada Deputado) e <strong>Secreta</strong> (urna eletrônica, para casos previstos no Regimento e na CF).</p>
+      <div class="highlight">💡 A votação nominal pode ser requerida por qualquer Deputado antes de iniciada a votação.</div>
+    </div>
+
+    <div class="card" data-cat="Votações">
+      <span class="tag">Votações</span>
+      <div class="art">Art. 187</div>
+      <h3>Maioria Simples e Absoluta</h3>
+      <p><strong>Maioria Simples</strong>: mais votos favoráveis que contrários, dos presentes (quórum mínimo: 1/5 = 103 Dep.). <strong>Maioria Absoluta</strong>: mais da metade do total de membros da Casa = 257 Deputados.</p>
+    </div>
+
+    <div class="card" data-cat="Votações">
+      <span class="tag">Votações</span>
+      <div class="art">Art. 188</div>
+      <h3>Maioria Qualificada</h3>
+      <p><strong>Maioria de 2/3</strong>: 342 Deputados (ex.: aprovação de estado de sítio). <strong>Maioria de 3/5</strong>: 308 Deputados (ex.: aprovação de Emenda Constitucional). Sempre calculado sobre o total de 513 membros.</p>
+    </div>
+
+  </div><!-- /.cards-grid -->
+</section>
+
+<!-- ===================== FLASHCARDS SECTION ===================== -->
+<section id="flashcards">
+  <h2 class="section-title">🃏 FlashCards de <span>Estudo</span></h2>
+
+  <div class="flashcard-controls">
+    <button class="fc-btn prev" id="fcPrev" onclick="fcMove(-1)">← Anterior</button>
+    <span class="fc-counter" id="fcCounter">1 / 30</span>
+    <button class="fc-btn next" id="fcNext" onclick="fcMove(1)">Próximo →</button>
+    <button class="fc-btn shuffle" onclick="fcShuffle()">🔀 Embaralhar</button>
+  </div>
+
+  <div class="fc-progress-wrap">
+    <div class="fc-progress-bar" id="fcProgress" style="width:3.3%"></div>
+  </div>
+
+  <p class="fc-flip-hint">Clique no card para <span>revelar a resposta</span> ↩</p>
+
+  <div class="fc-scene" onclick="fcFlip()">
+    <div class="fc-card" id="fcCard">
+      <div class="fc-face front">
+        <div class="fc-label">Pergunta</div>
+        <div class="fc-category" id="fcFrontCat"></div>
+        <h2 id="fcQuestion"></h2>
+        <div class="fc-hint">Toque/clique para ver a resposta</div>
+      </div>
+      <div class="fc-face back">
+        <div class="fc-label">Resposta</div>
+        <div class="fc-art" id="fcBackArt"></div>
+        <p id="fcAnswer"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fc-legend" id="fcLegend"></div>
+</section>
+
+<footer>
+  <p>Conteúdo baseado no Regimento Interno da Câmara dos Deputados (RICD) · Atualizado 2024 · Para fins de estudo.</p>
+</footer>
+
+<script>
+// ===== TAB NAVIGATION =====
+function showTab(id, btn) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ===== CARD FILTER =====
+function filterCards(cat, btn) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#cardsGrid .card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+
+// ===== FLASHCARD DATA =====
+const flashcards = [
+  {
+    category: 'Organização',
+    question: 'Quantos Deputados Federais compõem a Câmara dos Deputados e qual o sistema eleitoral?',
+    article: 'Art. 1º e CF, Art. 45',
+    answer: 'A Câmara é composta por <strong>513 Deputados Federais</strong>, eleitos pelo sistema <strong>proporcional</strong> em cada Estado, Território e no Distrito Federal, com mandato de 4 anos.'
+  },
+  {
+    category: 'Mesa Diretora',
+    question: 'Qual é a composição da Mesa Diretora da Câmara dos Deputados?',
+    article: 'Art. 14',
+    answer: 'A Mesa é composta por <strong>1 Presidente, 2 Vice-Presidentes e 4 Secretários</strong> (e 4 Suplentes de Secretário), totalizando 9 membros titulares. Mandato de 2 anos, vedada a reeleição para o mesmo cargo na eleição imediatamente subsequente.'
+  },
+  {
+    category: 'Mesa Diretora',
+    question: 'Em que situação o Presidente da Câmara pode votar?',
+    article: 'Art. 17, § 1º',
+    answer: 'O Presidente da Câmara <strong>normalmente não vota</strong>. Ele só vota em <strong>votações secretas</strong> ou quando sua participação for decisiva para atingir o quórum necessário (desempate).'
+  },
+  {
+    category: 'Organização',
+    question: 'Qual é o período da sessão legislativa ordinária?',
+    article: 'Art. 7º / CF Art. 57',
+    answer: 'A sessão legislativa ordinária tem dois períodos: <strong>2 de fevereiro a 17 de julho</strong> e <strong>1º de agosto a 22 de dezembro</strong>. O recesso parlamentar ocorre de 18 a 31 de julho e de 23 de dezembro a 1º de fevereiro.'
+  },
+  {
+    category: 'Comissões',
+    question: 'Quais são os três tipos de comissões parlamentares da Câmara?',
+    article: 'Art. 22',
+    answer: '<strong>1. Permanentes:</strong> caráter técnico-legislativo contínuo. <strong>2. Temporárias:</strong> criadas para fim específico, extintas ao término do prazo ou da legislatura. <strong>3. Mistas:</strong> compostas por Deputados e Senadores, como as que analisam MPs.'
+  },
+  {
+    category: 'Comissões',
+    question: 'O que é o poder conclusivo das comissões e como pode ser afastado?',
+    article: 'Art. 24, II / Art. 132',
+    answer: 'É a competência das comissões de <strong>discutir e votar projetos de lei sem necessidade de apreciação pelo Plenário</strong>. Pode ser afastado mediante recurso assinado por <strong>1/10 dos membros da Casa (52 Deputados)</strong>, interposto dentro de 5 sessões.'
+  },
+  {
+    category: 'Comissões',
+    question: 'Como é criada uma CPI e quais são seus poderes?',
+    article: 'Art. 49 / CF Art. 58, §3º',
+    answer: 'A CPI é criada mediante requerimento de <strong>1/3 dos membros</strong> da Casa (171 Deputados), com <strong>prazo certo</strong> e <strong>fato determinado</strong>. Possui poderes investigatórios próprios das autoridades judiciais: ouvir testemunhas, determinar diligências, decretar quebra de sigilo bancário e fiscal.'
+  },
+  {
+    category: 'Sessões',
+    question: 'Quais são os tipos de sessão do Plenário da Câmara?',
+    article: 'Art. 66 – 69',
+    answer: '<strong>Ordinária:</strong> segunda a sexta, das 14h às 19h. <strong>Extraordinária:</strong> fora do horário normal ou durante o recesso. <strong>Solene:</strong> finalidade especial (homenagens, posses), sem deliberação. <strong>Conjunta:</strong> com o Senado, para matérias específicas da CF.'
+  },
+  {
+    category: 'Sessões',
+    question: 'Qual é a diferença entre quórum de instalação e quórum de deliberação?',
+    article: 'Art. 79 – 81',
+    answer: '<strong>Quórum de instalação:</strong> 1/5 dos membros (103 Deputados) — mínimo para abrir a sessão. <strong>Quórum de deliberação (maioria absoluta):</strong> mais da metade dos membros (257 Deputados) — necessário para votar a maioria das matérias.'
+  },
+  {
+    category: 'Votações',
+    question: 'Quais são as formas de votação no Plenário da Câmara?',
+    article: 'Art. 184',
+    answer: '<strong>Simbólica:</strong> membros favoráveis ficam sentados (presunção de aprovação). <strong>Nominal:</strong> painel eletrônico, voto de cada Deputado registrado. <strong>Secreta:</strong> urna eletrônica, para casos específicos como aprovação de veto presidencial e votações constitucionais.'
+  },
+  {
+    category: 'Votações',
+    question: 'Quantos votos são necessários para aprovar uma Emenda Constitucional (PEC)?',
+    article: 'CF Art. 60, §2º',
+    answer: 'A PEC deve ser aprovada em <strong>dois turnos</strong> de votação, por <strong>3/5 dos membros</strong> de cada Casa. Na Câmara, isso equivale a <strong>308 votos favoráveis</strong> em cada turno. Não é possível rejeitar e reapresentar na mesma sessão legislativa.'
+  },
+  {
+    category: 'Votações',
+    question: 'O que é maioria simples e maioria absoluta?',
+    article: 'Art. 187',
+    answer: '<strong>Maioria Simples:</strong> mais votos favoráveis que contrários, computados os votos dos presentes. Quórum mínimo de 1/5 da Casa. <strong>Maioria Absoluta:</strong> mais da metade do total de membros da Casa, independentemente dos presentes = <strong>257 Deputados</strong>.'
+  },
+  {
+    category: 'Processo Legislativo',
+    question: 'Quais entidades possuem iniciativa para apresentar projetos de lei na Câmara?',
+    article: 'Art. 153 / CF Art. 61',
+    answer: 'Têm iniciativa: <strong>qualquer Deputado ou Senador, comissões, Presidente da República, STF, Tribunais Superiores, PGR</strong> e <strong>cidadãos</strong> (iniciativa popular: assinatura de 1% do eleitorado, distribuído em ≥5 estados, com ≥0,3% dos eleitores de cada estado).'
+  },
+  {
+    category: 'Processo Legislativo',
+    question: 'Quais são os regimes de tramitação de proposições legislativas?',
+    article: 'Art. 120 – 133',
+    answer: '<strong>Ordinária:</strong> tramitação normal. <strong>Prioridade:</strong> prazo de 45 dias em cada comissão. <strong>Urgência:</strong> apreciação imediata com prazo de 24h. <strong>Urgência urgentíssima:</strong> votação na mesma sessão, exige aprovação do Plenário por maioria absoluta.'
+  },
+  {
+    category: 'Processo Legislativo',
+    question: 'O que é uma Medida Provisória (MP) e qual seu prazo de validade?',
+    article: 'Art. 202 / CF Art. 62',
+    answer: 'É ato normativo com <strong>força de lei</strong> editado pelo Presidente da República em casos de <strong>relevância e urgência</strong>. Tem vigência de <strong>60 dias, prorrogáveis por mais 60 dias</strong>. Se não votada em 45 dias, <strong>tranca a pauta da Casa</strong> em que estiver tramitando.'
+  },
+  {
+    category: 'Processo Legislativo',
+    question: 'Como funciona o veto presidencial e como ele pode ser derrubado?',
+    article: 'Art. 192 / CF Art. 66',
+    answer: 'O Presidente pode vetar um projeto no prazo de <strong>15 dias úteis</strong>, total ou parcialmente, por inconstitucionalidade ou contrariedade ao interesse público. Para derrubar o veto, o Congresso Nacional precisa de <strong>maioria absoluta de Deputados e Senadores</strong>, em <strong>votação secreta</strong> e sessão conjunta.'
+  },
+  {
+    category: 'Processo Legislativo',
+    question: 'O que diferencia um Projeto de Lei Complementar (PLP) de um Projeto de Lei Ordinária (PL)?',
+    article: 'CF Arts. 47, 69',
+    answer: 'O <strong>PLP</strong> regula matérias expressamente previstas na CF, exigindo aprovação por <strong>maioria absoluta</strong> (257 Deputados). O <strong>PL ordinário</strong> é aprovado por <strong>maioria simples</strong> dos presentes (com quórum de 1/5). A LC não pode ser revogada por lei ordinária.'
+  },
+  {
+    category: 'Comissões',
+    question: 'Qual o quórum mínimo para deliberação nas comissões?',
+    article: 'Art. 53',
+    answer: 'O quórum para deliberação nas comissões é de <strong>maioria absoluta de seus membros</strong>. As reuniões são abertas ao público, salvo quando a comissão deliberar pelo sigilo. O quórum de instalação é de <strong>1/3 dos membros</strong>.'
+  },
+  {
+    category: 'Lideranças',
+    question: 'Quais são as prerrogativas dos Líderes Partidários no Plenário?',
+    article: 'Art. 11',
+    answer: 'Os Líderes podem: <strong>usar da palavra por 5 minutos</strong> ao fim de cada fase do debate; encaminhar votação por até 3 minutos; solicitar verificação de quórum; requerer destaque de emendas e orientar a bancada sobre votações. Líderes de partidos com 5%+ dos assentos têm prerrogativas ampliadas.'
+  },
+  {
+    category: 'Organização',
+    question: 'Em que consiste a imunidade parlamentar dos Deputados Federais?',
+    article: 'CF Art. 53',
+    answer: '<strong>Imunidade material (inviolabilidade):</strong> os Deputados são invioláveis civil e penalmente por quaisquer opiniões, palavras e votos exercidos no cargo. <strong>Imunidade formal:</strong> desde a expedição do diploma, não podem ser presos, salvo em flagrante de crime inafiançável; o STF é o foro privilegiado.'
+  },
+  {
+    category: 'Mesa Diretora',
+    question: 'Como é a linha de sucessão presidencial no Brasil?',
+    article: 'CF Art. 80',
+    answer: 'Em caso de impedimento ou vacância, a ordem de substituição é: <strong>1º Vice-Presidente da República → 2º Presidente da Câmara dos Deputados → 3º Presidente do Senado Federal → 4º Presidente do STF</strong>.'
+  },
+  {
+    category: 'Sessões',
+    question: 'O que é a Ordem do Dia e como ela é organizada?',
+    article: 'Art. 83 – 91',
+    answer: 'É a relação de matérias a serem apreciadas na sessão, organizada pela Mesa em ordem de prioridade: <strong>1º Urgência Urgentíssima → 2º Urgência → 3º Prioridade → 4º Tramitação Ordinária</strong>. Dentro de cada categoria, prevalecem as matérias do Executivo e as mais antigas.'
+  },
+  {
+    category: 'Processo Legislativo',
+    question: 'O que é emenda constitucional e quais são suas limitações?',
+    article: 'CF Art. 60',
+    answer: 'PEC altera formalmente a CF. <strong>Limitações (cláusulas pétreas):</strong> não podem ser suprimidas disposições sobre forma federativa, voto direto/secreto/universal, separação de poderes e direitos e garantias individuais. Não pode ser proposta na vigência de intervenção federal, estado de defesa ou estado de sítio.'
+  },
+  {
+    category: 'Votações',
+    question: 'Quando é obrigatória a votação nominal (por painel eletrônico)?',
+    article: 'Art. 186',
+    answer: 'A votação nominal é obrigatória quando houver <strong>requerimento de qualquer Deputado</strong> antes de iniciar a votação; quando exigida pelo Regimento (ex.: verificação de quórum); e para aprovação de matérias constitucionais como PECs. Qualquer Deputado pode requerer votação nominal.'
+  },
+  {
+    category: 'Comissões',
+    question: 'O que é a Comissão de Constituição e Justiça e de Cidadania (CCJC)?',
+    article: 'Art. 32, III / Art. 54',
+    answer: 'A CCJC é uma comissão permanente com competência para emitir parecer sobre a <strong>constitucionalidade, juridicidade, técnica legislativa e redação</strong> de todas as proposições que tramitam na Câmara. Seu parecer pela inconstitucionalidade pode arquivar a proposição, salvo recurso ao Plenário.'
+  },
+  {
+    category: 'Processo Legislativo',
+    question: 'O que é a iniciativa popular de lei e quais são seus requisitos?',
+    article: 'CF Art. 61, §2º',
+    answer: 'A iniciativa popular permite que cidadãos apresentem projetos de lei mediante assinatura de <strong>1% do eleitorado nacional</strong>, distribuído em pelo menos <strong>5 estados</strong>, com no mínimo <strong>0,3% dos eleitores de cada estado</strong>. O projeto é apresentado à Câmara dos Deputados.'
+  },
+  {
+    category: 'Sessões',
+    question: 'O que é uma sessão extraordinária e em quais casos é convocada?',
+    article: 'Art. 67 / CF Art. 57, §6º',
+    answer: 'Sessão extraordinária é convocada fora do período de sessão legislativa (durante o recesso). Pode ser convocada pelo: <strong>Presidente da República</strong> (urgência), <strong>Presidentes da Câmara e do Senado</strong> (urgência ou interesse público), ou por <strong>maioria absoluta</strong> dos membros de ambas as Casas.'
+  },
+  {
+    category: 'Organização',
+    question: 'Quando um Deputado perde o mandato ou tem o mandato suspenso?',
+    article: 'CF Art. 55',
+    answer: '<strong>Perde o mandato</strong> quando: infringir as proibições constitucionais; procedimento incompatível com decoro parlamentar; ausência injustificada em 1/3 das sessões ordinária; perder ou tiver suspensos direitos políticos; condenado pela Justiça Eleitoral. A perda pode ser declarada pela Mesa ou pelo Plenário (2/3).'
+  },
+  {
+    category: 'Processo Legislativo',
+    question: 'O que é a delegação legislativa e como funciona?',
+    article: 'CF Art. 68',
+    answer: 'A <strong>lei delegada</strong> é elaborada pelo Presidente da República mediante delegação do Congresso Nacional, por <strong>resolução</strong>. A delegação especificará o conteúdo e os termos de exercício. Não podem ser objeto de delegação: atos de competência exclusiva do Congresso, do Senado, matéria reservada à LC, PEC, organização do Judiciário, entre outros.'
+  },
+  {
+    category: 'Lideranças',
+    question: 'O que é o Colégio de Líderes e qual sua função?',
+    article: 'Art. 11, §1º',
+    answer: 'O Colégio de Líderes é o conjunto dos líderes dos partidos e blocos parlamentares, do Governo, da Maioria, da Minoria e das bancadas. Reúne-se periodicamente para <strong>definir a pauta de trabalhos</strong>, organizar a semana legislativa e tratar de questões de interesse coletivo da Casa.'
+  },
+  {
+    category: 'Votações',
+    question: 'Como funciona o processo de impeachment do Presidente da República na Câmara?',
+    article: 'CF Art. 86 / Art. 218, RICD',
+    answer: 'A <strong>Câmara autoriza</strong> o processo de impeachment por <strong>2/3 de seus membros (342 Deputados)</strong>, em votação nominal. Após autorização, o processo segue para o Senado, que julga o Presidente. A admissibilidade é analisada por uma comissão especial antes da votação do Plenário.'
+  }
+];
+
+// ===== FLASHCARD STATE =====
+let fcIndex = 0;
+let fcOrder = flashcards.map((_, i) => i);
+
+// Category-to-color map
+const colorMap = {
+  'Organização':          '#1a6b3c',
+  'Mesa Diretora':        '#c9a227',
+  'Comissões':            '#2563eb',
+  'Sessões':              '#0891b2',
+  'Processo Legislativo': '#7c3aed',
+  'Votações':             '#dc2626',
+  'Lideranças':           '#b45309'
+};
+const categories = Object.keys(colorMap);
+
+function renderFC() {
+  const idx = fcOrder[fcIndex];
+  const fc = flashcards[idx];
+  document.getElementById('fcFrontCat').textContent = fc.category;
+  document.getElementById('fcFrontCat').style.background = colorMap[fc.category] + '33';
+  document.getElementById('fcFrontCat').style.color = colorMap[fc.category];
+  document.getElementById('fcQuestion').textContent = fc.question;
+  document.getElementById('fcBackArt').textContent = fc.article;
+  document.getElementById('fcAnswer').innerHTML = fc.answer;
+  document.getElementById('fcCard').classList.remove('flipped');
+  document.getElementById('fcCounter').textContent = (fcIndex + 1) + ' / ' + fcOrder.length;
+  document.getElementById('fcProgress').style.width = ((fcIndex + 1) / fcOrder.length * 100) + '%';
+  document.getElementById('fcPrev').disabled = fcIndex === 0;
+  document.getElementById('fcNext').disabled = fcIndex === fcOrder.length - 1;
+}
+
+function fcFlip() {
+  document.getElementById('fcCard').classList.toggle('flipped');
+}
+
+function fcMove(dir) {
+  fcIndex = Math.max(0, Math.min(fcOrder.length - 1, fcIndex + dir));
+  renderFC();
+}
+
+function fcShuffle() {
+  for (let i = fcOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [fcOrder[i], fcOrder[j]] = [fcOrder[j], fcOrder[i]];
+  }
+  fcIndex = 0;
+  renderFC();
+}
+
+// Build legend
+function buildLegend() {
+  const legend = document.getElementById('fcLegend');
+  categories.forEach(cat => {
+    const item = document.createElement('div');
+    item.className = 'fc-legend-item';
+    item.innerHTML = `<span class="dot" style="background:${colorMap[cat]}"></span>${cat}`;
+    legend.appendChild(item);
+  });
+}
+
+// Init
+buildLegend();
+renderFC();
+</script>
+</body>
+</html>
