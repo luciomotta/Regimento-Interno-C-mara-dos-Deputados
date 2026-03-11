@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RICD – Mapa de Revisão | Concurso Policial</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080d18;
+    --surface: #0f1829;
+    --card: #131e32;
+    --border: #1a2d4a;
+    --c1: #3b82f6; --c1d: #1d4ed8; --c1bg: #0f1e38;
+    --c2: #10b981; --c2d: #059669; --c2bg: #0a1f18;
+    --c3: #f59e0b; --c3d: #d97706; --c3bg: #1f1608;
+    --c4: #ef4444; --c4d: #dc2626; --c4bg: #1f0a0a;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --light: #94a3b8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 40% at 20% 10%, rgba(59,130,246,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 30% at 80% 80%, rgba(16,185,129,0.05) 0%, transparent 60%);
+    pointer-events:none; z-index:0;
+  }
+  .wrap { position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:36px 20px 100px; }
+
+  header { text-align:center; margin-bottom:48px; }
+  .kicker {
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:3px;
+    text-transform:uppercase; color:var(--c1); border:1px solid rgba(59,130,246,0.3);
+    padding:4px 14px; border-radius:20px; margin-bottom:16px;
+    background:rgba(59,130,246,0.07);
+  }
+  h1 {
+    font-family:'Syne',sans-serif; font-size:clamp(28px,5vw,46px);
+    font-weight:800; line-height:1.1;
+    background: linear-gradient(135deg,#e2e8f0 30%,#3b82f6);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    margin-bottom:10px;
+  }
+  .subtitle { color:var(--light); font-size:15px; max-width:500px; margin:0 auto 20px; }
+  .version-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--card); border:1px solid var(--border);
+    padding:6px 16px; border-radius:20px; font-size:13px; color:var(--c2);
+  }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--c2); animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .tabs {
+    display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+    margin-bottom:36px;
+  }
+  .tab {
+    padding:8px 20px; border-radius:8px; border:1px solid var(--border);
+    background:var(--card); font-size:13px; font-weight:500; cursor:pointer;
+    transition:all .2s; color:var(--light);
+  }
+  .tab:hover { color:var(--text); }
+  .tab-all.active { background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.3); color:#fff; }
+  .tab.active[data-c="1"] { background:var(--c1bg); border-color:var(--c1); color:var(--c1); }
+  .tab.active[data-c="2"] { background:var(--c2bg); border-color:var(--c2); color:var(--c2); }
+  .tab.active[data-c="3"] { background:var(--c3bg); border-color:var(--c3); color:var(--c3); }
+  .tab.active[data-c="4"] { background:var(--c4bg); border-color:var(--c4); color:var(--c4); }
+
+  .block { display:none; }
+  .block.visible { display:block; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+  .block-header {
+    display:flex; align-items:center; gap:14px; margin-bottom:24px;
+  }
+  .block-icon {
+    width:48px; height:48px; border-radius:12px; display:flex;
+    align-items:center; justify-content:center; font-size:22px; flex-shrink:0;
+  }
+  .block-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; }
+  .block-arts { font-size:13px; color:var(--muted); margin-top:2px; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:14px; padding:20px; position:relative;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    cursor:pointer;
+  }
+  .card:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.4); }
+  .card-num { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; opacity:.8; }
+  .card-topic { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; margin-bottom:8px; line-height:1.3; }
+  .card-summary { font-size:13px; color:var(--light); line-height:1.6; }
+  .card-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+  .tag { font-size:11px; padding:2px 9px; border-radius:20px; font-weight:500; background:rgba(255,255,255,.06); color:var(--light); }
+  .card-expand { display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border); font-size:13px; color:var(--light); line-height:1.7; }
+  .card.open .card-expand { display:block; }
+  .card-arrow { position:absolute; top:16px; right:16px; font-size:18px; opacity:.4; transition:.2s; }
+  .card:hover .card-arrow { opacity:.8; }
+  .card.open .card-arrow { transform:rotate(90deg); opacity:1; }
+
+  .b1 .card:hover { border-color:rgba(59,130,246,.4); }
+  .b1 .card-num { color:var(--c1); }
+  .b1 .card-arrow { color:var(--c1); }
+  .b2 .card:hover { border-color:rgba(16,185,129,.4); }
+  .b2 .card-num { color:var(--c2); }
+  .b2 .card-arrow { color:var(--c2); }
+  .b3 .card:hover { border-color:rgba(245,158,11,.4); }
+  .b3 .card-num { color:var(--c3); }
+  .b3 .card-arrow { color:var(--c3); }
+  .b4 .card:hover { border-color:rgba(239,68,68,.4); }
+  .b4 .card-num { color:var(--c4); }
+  .b4 .card-arrow { color:var(--c4); }
+
+  .tip {
+    margin-top:20px; padding:14px 18px;
+    border-radius:10px; font-size:13px; line-height:1.6;
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .tip-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+  .tip strong { display:block; font-weight:600; margin-bottom:2px; }
+  .b1 .tip { background:var(--c1bg); border:1px solid rgba(59,130,246,.25); color:var(--c1); }
+  .b2 .tip { background:var(--c2bg); border:1px solid rgba(16,185,129,.25); color:var(--c2); }
+  .b3 .tip { background:var(--c3bg); border:1px solid rgba(245,158,11,.25); color:var(--c3); }
+  .b4 .tip { background:var(--c4bg); border:1px solid rgba(239,68,68,.25); color:var(--c4); }
+  .tip p { color:var(--light); }
+
+  .block + .block { margin-top:48px; }
+
+  .quiz-bar {
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--surface); border-top:1px solid var(--border);
+    padding:12px 20px; display:flex; align-items:center; justify-content:center; gap:16px;
+    z-index:100; backdrop-filter:blur(10px);
+  }
+  .quiz-bar span { font-size:13px; color:var(--muted); }
+  .quiz-btn {
+    background:var(--c1); color:#fff; border:none; padding:8px 22px;
+    border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:.2s;
+  }
+  .quiz-btn:hover { background:var(--c1d); }
+  .progress-wrap { display:flex; align-items:center; gap:8px; }
+  .progress-bar { width:120px; height:4px; background:var(--border); border-radius:2px; }
+  .progress-fill { height:100%; background:var(--c1); border-radius:2px; transition:width .3s; }
+
+  .modal-bg {
+    position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(4px);
+    z-index:200; display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-bg.open { display:flex; }
+  .modal {
+    background:var(--surface); border:1px solid var(--border); border-radius:18px;
+    padding:32px; max-width:520px; width:100%; animation:fadeIn .3s ease;
+  }
+  .modal h3 { font-family:'Syne',sans-serif; font-size:20px; margin-bottom:6px; }
+  .modal .q-meta { font-size:12px; color:var(--muted); margin-bottom:20px; }
+  .modal .q-text { font-size:15px; line-height:1.6; margin-bottom:24px; color:var(--text); }
+  .q-options { display:flex; flex-direction:column; gap:10px; }
+  .q-opt {
+    padding:12px 16px; border-radius:10px; border:1px solid var(--border);
+    background:var(--card); cursor:pointer; font-size:14px; transition:.2s;
+    text-align:left; color:var(--text);
+  }
+  .q-opt:hover { border-color:var(--c1); color:var(--c1); }
+  .q-opt.correct { border-color:var(--c2); background:var(--c2bg); color:var(--c2); }
+  .q-opt.wrong { border-color:var(--c4); background:var(--c4bg); color:var(--c4); }
+  .q-feedback { margin-top:18px; font-size:14px; line-height:1.6; display:none; color:var(--light); }
+  .q-feedback.show { display:block; }
+  .q-nav { display:flex; justify-content:space-between; align-items:center; margin-top:20px; }
+  .q-nav button { padding:9px 20px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:600; transition:.2s; }
+  .btn-close { background:var(--border); color:var(--light); }
+  .btn-close:hover { background:var(--c4bg); color:var(--c4); }
+  .btn-next { background:var(--c1); color:#fff; }
+  .btn-next:hover { background:var(--c1d); }
+  .q-score { font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">🚔 Concurso Policial · RICD</div>
+    <h1>Regimento Interno<br>Câmara dos Deputados</h1>
+    <p class="subtitle">Mapa de revisão interativo — clique nos cards para expandir cada tema</p>
+    <div class="version-badge"><span class="dot"></span> Resolução nº 16/2025 · Atualizado 15/05/2025</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab tab-all active" onclick="showBlock('all',this)">Todos os Blocos</button>
+    <button class="tab" data-c="1" onclick="showBlock('b1',this)">📘 Arts. 1–24</button>
+    <button class="tab" data-c="2" onclick="showBlock('b2',this)">📗 Arts. 65–94</button>
+    <button class="tab" data-c="3" onclick="showBlock('b3',this)">📙 Arts. 226–251</button>
+    <button class="tab" data-c="4" onclick="showBlock('b4',this)">📕 Arts. 262–273</button>
+  </div>
+
+  <!-- BLOCO 1 -->
+  <div class="block b1 visible" id="b1">
+    <div class="block-header">
+      <div class="block-icon" style="background:var(--c1bg);color:var(--c1);">📘</div>
+      <div>
+        <div class="block-title" style="color:var(--c1)">Disposições Preliminares &amp; Órgãos</div>
+        <div class="block-arts">Arts. 1º a 24 — Sede, Sessões, Mesa, Líderes, Blocos, Comissões</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Art. 1º</div>
+        <div class="card-topic">Sede da Câmara</div>
+        <div class="card-summary">Câmara funciona no Palácio do Congresso Nacional. Pode reunir-se em outro local por deliberação da Mesa, ad referendum da maioria absoluta dos Deputados.</div>
+        <div class="card-expand">⚠️ <strong>Detalhe importante:</strong> a mudança de sede exige deliberação da Mesa + ratificação de maioria absoluta dos Deputados. Não é aprovação simples em plenário.</div>
+        <div class="card-tags"><span class="tag">Sede</span><span class="tag">Mesa</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Art. 2º</div>
+        <div class="card-topic">Sessões Legislativas</div>
+        <div class="card-summary">Ordinárias: 2/fev–17/jul e 1º/ago–22/dez. Extraordinárias: quando o CN for convocado com esse caráter.</div>
+        <div class="card-expand">📅 A sessão ordinária não é interrompida em 17/jul enquanto não for aprovada a LDO. Se a data cair em fim de semana/feriado, transfere-se para o 1º dia útil seguinte. Na convocação extraordinária, a Câmara delibera somente sobre a matéria objeto da convocação.</div>
+        <div class="card-tags"><span class="tag">Calendário</span><span class="tag">LDO</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 3º–4º</div>
+        <div class="card-topic">Posse dos Deputados</div>
+        <div class="card-summary">Diploma entregue até 31/jan. Sessão preparatória em 1º/fev. Prazo de posse: 30 dias (prorrogável). Compromisso solene: conteúdo inalterável, sem declaração oral/escrita e sem procurador.</div>
+        <div class="card-expand">💻 Res. 37/2022: posse por videoconferência admitida em casos excepcionais (força maior, enfermidade). Licença-gestante: parto nos últimos 120 dias assegura posse virtual. Quem não presta compromisso não é considerado investido no mandato.</div>
+        <div class="card-tags"><span class="tag">Posse</span><span class="tag">Compromisso</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 5º–8º</div>
+        <div class="card-topic">Eleição da Mesa</div>
+        <div class="card-summary">Eleição em 1º/fev (1ª e 3ª SL). Escrutínio secreto. 1º turno: maioria absoluta; 2º turno: maioria simples. Mandato: 2 anos. Vedada recondução ao mesmo cargo na eleição seguinte.</div>
+        <div class="card-expand">🔢 Composição: Presidente + 2 Vice-Presidentes + 4 Secretários + 4 Suplentes de Secretário. Empate = mais idoso entre os de mais legislaturas. Mudança de partido = perda automática do cargo na Mesa (§5º). Membro da Minoria sempre assegurado (§3º).</div>
+        <div class="card-tags"><span class="tag">Mesa</span><span class="tag">Mandato 2 anos</span><span class="tag">Escrutínio secreto</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 9º–11-A</div>
+        <div class="card-topic">Líderes e Vice-Líderes</div>
+        <div class="card-summary">Vice-Líderes: 1 por 4 Deputados (ou fração). Líderes e Vice-Líderes não podem integrar a Mesa. Liderança do Governo: 1 Líder + 20 Vice-Líderes. Liderança da Minoria: 1 Líder + 9 Vice-Líderes.</div>
+        <div class="card-expand">🎤 Partido sem requisito mínimo do art. 17 §3º CF pode indicar representante para falar 5 min/semana nas Comunicações de Lideranças. O Líder pode encaminhar votação por 1 min e participar de qualquer Comissão sem direito a voto.</div>
+        <div class="card-tags"><span class="tag">Líder</span><span class="tag">Governo</span><span class="tag">Minoria</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 12–13-B</div>
+        <div class="card-topic">Blocos, Maioria, Minoria e Bancada Negra</div>
+        <div class="card-summary">Bloco: min. 2 partidos + mín. 3% dos Deputados. Maioria = partido/bloco com maioria absoluta da Casa. Bancada Negra: eleição em 20/nov por autodeclaração racial.</div>
+        <div class="card-expand">⚖️ Se nenhuma representação atingir maioria absoluta, assume as funções de Maioria o maior partido/bloco. Bloco existe só na legislatura. Partido que saiu de Bloco dissolvido ou se desvinculou não pode criar/integrar outro na mesma sessão legislativa.</div>
+        <div class="card-tags"><span class="tag">Bloco</span><span class="tag">Maioria</span><span class="tag">Bancada Negra</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 14–15</div>
+        <div class="card-topic">A Mesa — Composição e Competências</div>
+        <div class="card-summary">Dirige os trabalhos legislativos e administrativos. Reunião ordinária: 1×/quinzena. Extraordinária: por convocação do Presidente ou de 4 membros. Perde lugar quem faltar a 5 reuniões ordinárias consecutivas sem justificativa.</div>
+        <div class="card-expand">📋 Competências-chave: declarar perda de mandato (art. 55 CF, incisos III, IV e V); propor suspensão cautelar do mandato (Res. 11/2024, 5 dias úteis para propor, Conselho de Ética decide em 3 dias úteis, recurso ao Plenário); promulgar emendas à CF com o Senado; encaminhar contas ao TCU.</div>
+        <div class="card-tags"><span class="tag">Mesa</span><span class="tag">Competências</span><span class="tag">Res. 11/2024</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 16–19-A</div>
+        <div class="card-topic">Presidência e Secretaria</div>
+        <div class="card-summary">Presidente: cargo privativo de brasileiro nato. Não pode votar nem oferecer proposição em plenário, exceto em escrutínio secreto ou desempate. Vice-Presidentes substituem por ordem numérica.</div>
+        <div class="card-expand">🔑 Presidente: substitui o Presidente da República (art. 80 CF); integra Conselho da República e Conselho de Defesa Nacional; dirige a polícia da Câmara com suprema autoridade. 1º Secretário: superintende os serviços administrativos.</div>
+        <div class="card-tags"><span class="tag">Presidente</span><span class="tag">Brasileiro nato</span><span class="tag">Secretários</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 20–24</div>
+        <div class="card-topic">Colégio de Líderes e Comissões</div>
+        <div class="card-summary">Colégio de Líderes: Maioria, Minoria, partidos, blocos e Governo. Votação ponderada pelo tamanho da bancada. Secretaria da Mulher: Procuradoria + Coordenadoria dos Direitos da Mulher.</div>
+        <div class="card-expand">📐 Art. 24 — Poderes das Comissões: receber petições; opinar sobre projetos; realizar audiências públicas; e apreciar proposições conclusivamente (sem necessidade de votação no Plenário) nos casos previstos no inciso II. Decisão pode ser revertida por recurso de 1/10 ao Plenário.</div>
+        <div class="card-tags"><span class="tag">Colégio de Líderes</span><span class="tag">Comissões</span><span class="tag">Secretaria da Mulher</span></div>
+      </div>
+    </div>
+    <div class="tip">
+      <div class="tip-icon">💡</div>
+      <div><strong>Macete — Bloco 1</strong>
+      <p>Mesa = direção + administração. Presidente = brasileiro nato + não vota em plenário. Sessão ordinária: 2 períodos. Bloco mínimo = 3%. Mandato da Mesa = 2 anos, sem recondução ao mesmo cargo.</p></div>
+    </div>
+  </div>
+
+  <!-- BLOCO 2 -->
+  <div class="block b2 visible" id="b2">
+    <div class="block-header">
+      <div class="block-icon" style="background:var(--c2bg);color:var(--c2);">📗</div>
+      <div>
+        <div class="block-title" style="color:var(--c2)">Sessões Plenárias &amp; Debates</div>
+        <div class="block-arts">Arts. 65 a 94 — Tipos de sessão, Quorum, Uso da palavra, Votações</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 65–68</div>
+        <div class="card-topic">Tipos de Sessão Plenária</div>
+        <div class="card-summary">Ordinárias: diariamente às 14h. Extraordinárias: qualquer horário fora do ordinário. Solenes: solenidades especiais. Secretas: assuntos de interesse nacional, aprovadas por maioria absoluta.</div>
+        <div class="card-expand">🕐 Sessão secreta: pode ser proposta pela Mesa, por Líderes ou por 1/10 dos Deputados; aprovada por maioria absoluta. Nas sessões ordinárias, a deliberação ocorre em dois momentos: Pequeno Expediente (60 min) e Ordem do Dia. Ausência injustificada em 1/3 das sessões = perda de mandato (art. 55 IV CF).</div>
+        <div class="card-tags"><span class="tag">Sessão ordinária</span><span class="tag">Secreta</span><span class="tag">14h</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 69–71</div>
+        <div class="card-topic">Quorum — Resumo Essencial</div>
+        <div class="card-summary">Abertura: 1/10 (~52 dep.). Deliberação: maioria absoluta presente (257). Aprovação geral: maioria dos presentes. Casos especiais: maioria absoluta (257) ou 3/5 (308).</div>
+        <div class="card-expand">📊 Quoruns especiais: PEC = 3/5 (308) em 2 turnos; Perda de mandato por voto aberto = maioria absoluta; Rejeição de veto = maioria absoluta de cada Casa; Sustação de processos = maioria absoluta; Aprovação de urgência = maioria absoluta ou 2/3 (342) conforme o caso.</div>
+        <div class="card-tags"><span class="tag">1/10 abertura</span><span class="tag">257 deliberar</span><span class="tag">308 PEC</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 72–76</div>
+        <div class="card-topic">Ordem do Dia e Expediente</div>
+        <div class="card-summary">Grande Expediente: 60 min (oradores inscritos, 25 min cada). Pequeno Expediente: 60 min. Comunicações de Lideranças: proporcional à bancada. Comunicações Parlamentares: ao fim da sessão.</div>
+        <div class="card-expand">⏱️ A Ordem do Dia é organizada pelo Presidente ouvido o Colégio de Líderes (agenda mensal). Regime de urgência pode alterar a Ordem do Dia. Proposições em regime de urgência têm preferência sobre as demais. Líderes podem incluir itens na pauta com 24h de antecedência.</div>
+        <div class="card-tags"><span class="tag">Grande Expediente</span><span class="tag">Comunicações</span><span class="tag">Pauta</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 77–82</div>
+        <div class="card-topic">Uso da Palavra — Discursos e Apartes</div>
+        <div class="card-summary">Grande Expediente: oradores inscritos, 25 min cada. Aparte: breve interrupção com aquiescência do orador, máx. 1 min. Questão de ordem: máx. 5 min, sobre caso concreto.</div>
+        <div class="card-expand">🎙️ Líderes: podem encaminhar votação por 1 min a qualquer tempo. Presidente retira a palavra de quem se desviar da questão ou falar do vencido. Discurso só em português (ou com tradução simultânea). Aparte sem assentimento do orador: não é permitido e não consta da ata.</div>
+        <div class="card-tags"><span class="tag">Discurso 25min</span><span class="tag">Aparte 1min</span><span class="tag">Questão de ordem</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 83–88</div>
+        <div class="card-topic">Requerimentos e Prazos</div>
+        <div class="card-summary">Urgência: assinado por 1/3 dos Deputados (171) ou por Líderes que representem 1/3 da Casa. Adiamento de votação: até 5 sessões. Verificação de quorum: qualquer Deputado pode pedir.</div>
+        <div class="card-expand">📝 Encerramento de discussão: requerido por qualquer Deputado, aprovado por maioria absoluta. Retirada de proposição: pelo autor, antes de iniciada a discussão. Prorrogação da sessão: aprovada por maioria simples, sem limite de tempo fixo. Atos de comissões: podem ser revistos pelo Plenário mediante recurso.</div>
+        <div class="card-tags"><span class="tag">Urgência 1/3</span><span class="tag">Requerimentos</span><span class="tag">Prazos</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 89–94</div>
+        <div class="card-topic">Votações — Sistemas e Modalidades</div>
+        <div class="card-summary">Regra: ostensiva pelo sistema eletrônico (nominal) ou simbólica. Secreto (escrutínio): eleições da Mesa, e casos previstos. Voto do Presidente: só no secreto ou para desempatar ostensiva.</div>
+        <div class="card-expand">🗳️ Votação simbólica: Presidente proclama os contrários e abstenções; qualquer Deputado pode pedir verificação. Resultado da verificação prevalece. Votação nominal: registrada no sistema eletrônico, publicada no DCD. Abstenção: permitida e registrada, mas não conta como voto. Votação por destaque: retira parte da proposição para votação separada.</div>
+        <div class="card-tags"><span class="tag">Eletrônico</span><span class="tag">Simbólico</span><span class="tag">Escrutínio secreto</span></div>
+      </div>
+    </div>
+    <div class="tip">
+      <div class="tip-icon">💡</div>
+      <div><strong>Macete — Bloco 2</strong>
+      <p>Abertura = 1/10 (52). Deliberar = maioria absoluta presente (257). Aprovação geral = maioria simples dos presentes. PEC = 3/5 (308). Urgência = 1/3 (171). Grande Expediente = 60 min, 25 min por orador.</p></div>
+    </div>
+  </div>
+
+  <!-- BLOCO 3 -->
+  <div class="block b3 visible" id="b3">
+    <div class="block-header">
+      <div class="block-icon" style="background:var(--c3bg);color:var(--c3);">📙</div>
+      <div>
+        <div class="block-title" style="color:var(--c3)">Processo Legislativo Especial</div>
+        <div class="block-arts">Arts. 226 a 251 — Medidas Provisórias, PEC, Vetos, Fiscalização</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 226–229</div>
+        <div class="card-topic">Medidas Provisórias (MP)</div>
+        <div class="card-summary">Publicada no DOU, lida em sessão. Comissão Mista (12 Dep. + 12 Sen.) analisa admissibilidade e mérito. Vigência: 60 dias + 60 dias de prorrogação automática = máx. 120 dias.</div>
+        <div class="card-expand">⚡ Após 45 dias sem apreciação, a MP entra em regime de urgência e trava a pauta da casa onde se encontrar. Caducando aos 120 dias, o CN deve disciplinar as relações jurídicas dela decorrentes em decreto legislativo. Emendas na fase inicial: somente na Câmara. Se o Senado emendar, volta à Câmara.</div>
+        <div class="card-tags"><span class="tag">MP</span><span class="tag">120 dias</span><span class="tag">45 dias urgência</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 230–234</div>
+        <div class="card-topic">Proposta de Emenda Constitucional (PEC)</div>
+        <div class="card-summary">Dois turnos com interstício de 5 dias úteis. Aprovação: 3/5 (308 Dep.) em cada turno. Aprovada na Câmara → Senado. Rejeitada: não reapresentável na mesma sessão legislativa.</div>
+        <div class="card-expand">🏛️ Legitimados: 1/3 dos Dep. (171), 1/3 dos Senadores, Presidente da República, maioria das assembleias legislativas (maioria relativa de cada uma). Comissão especial: 65 membros. Cláusulas pétreas (art. 60 §4º CF): voto, separação de poderes, federação e direitos fundamentais — não podem ser objeto de PEC.</div>
+        <div class="card-tags"><span class="tag">PEC</span><span class="tag">3/5 em 2 turnos</span><span class="tag">5 dias interstício</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 235–240</div>
+        <div class="card-topic">Licenças e Exercício do Mandato</div>
+        <div class="card-summary">Licenças: para cargo de Ministro/equivalente (suplente convocado), por motivo de saúde, para interesses particulares (máx. 120 dias/SL sem remuneração).</div>
+        <div class="card-expand">📌 Deputado em cargo incompatível: suplente convocado automaticamente. Titular pode retornar ao mandato a qualquer tempo. Perda de mandato (art. 55 CF): incisos I e II declarados pela Mesa; III, IV e V decididos pelo Plenário (votação nominal e ostensiva, maioria absoluta). Prazo de defesa: mínimo 10 sessões.</div>
+        <div class="card-tags"><span class="tag">Licença</span><span class="tag">Suplente</span><span class="tag">Art. 55 CF</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 241–244</div>
+        <div class="card-topic">Veto Presidencial</div>
+        <div class="card-summary">Veto comunicado ao CN em 48h. Apreciação em sessão conjunta em 30 dias corridos. Rejeição: maioria absoluta de cada Casa, votação ostensiva e nominal.</div>
+        <div class="card-expand">🔴 Se o CN não apreciar o veto em 30 dias, ele entra na Ordem do Dia e trava a pauta. Veto parcial: deve cobrir texto integral de artigo, parágrafo, inciso ou alínea — não pode vetar palavra isolada. Veto mantido: projeto arquivado. Veto rejeitado: lei promulgada pelo Presidente do CN.</div>
+        <div class="card-tags"><span class="tag">Veto</span><span class="tag">30 dias</span><span class="tag">Maioria absoluta</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 245–251</div>
+        <div class="card-topic">Fiscalização e Controle Legislativo</div>
+        <div class="card-summary">Câmara fiscaliza atos do Executivo. Requerimentos de informação a Ministros: prazo de 30 dias para resposta. CPI: criada com 1/3 dos Deputados (171), prazo determinado, poderes de investigação judicial.</div>
+        <div class="card-expand">🔍 CPI: pode intimar, ouvir e tomar depoimentos com poder de autoridade judicial, mas não pode ordenar prisão cautelar. Relatório final enviado ao MP. Fiscalização financeira: TCU auxilia o Congresso. Súmula de julgamento e tomada de contas especial: quando detectadas irregularidades na gestão pública.</div>
+        <div class="card-tags"><span class="tag">CPI 1/3</span><span class="tag">Fiscalização</span><span class="tag">TCU</span></div>
+      </div>
+    </div>
+    <div class="tip">
+      <div class="tip-icon">💡</div>
+      <div><strong>Macete — Bloco 3</strong>
+      <p>MP = 60+60=120 dias; trava pauta após 45 dias. PEC = 3/5 em 2 turnos + interstício de 5 dias úteis. Veto = 30 dias + maioria absoluta. CPI = 1/3 (171) + prazo determinado.</p></div>
+    </div>
+  </div>
+
+  <!-- BLOCO 4 -->
+  <div class="block b4 visible" id="b4">
+    <div class="block-header">
+      <div class="block-icon" style="background:var(--c4bg);color:var(--c4);">📕</div>
+      <div>
+        <div class="block-title" style="color:var(--c4)">Polícia e Decoro Parlamentar</div>
+        <div class="block-arts">Arts. 262 a 273 — Polícia da Câmara, Decoro, Penalidades, Perda de Mandato</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 262–265</div>
+        <div class="card-topic">Polícia da Câmara</div>
+        <div class="card-summary">Direção suprema da polícia: Presidente da Câmara. Corpo de Segurança Legislativa mantém a ordem no edifício e dependências. Mesa pode requisitar reforço policial externo.</div>
+        <div class="card-expand">🚔 Deputado em exercício goza de inviolabilidade por suas opiniões, palavras e votos (imunidade material — art. 53 CF). Agente de segurança não pode prender Deputado em flagrante, salvo por crime inafiançável. Nesse caso, encaminha imediatamente à Casa para deliberação sobre manutenção ou não da prisão.</div>
+        <div class="card-tags"><span class="tag">Polícia Legislativa</span><span class="tag">Presidente</span><span class="tag">Imunidade</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 266–268</div>
+        <div class="card-topic">Acesso ao Edifício e Ordem nas Galerias</div>
+        <div class="card-summary">Plenário e galerias: acesso regulado pela Mesa. Qualquer pessoa pode ser retirada por ordem do Presidente se perturbar a ordem ou atentar contra o decoro. Visitantes: identificação obrigatória.</div>
+        <div class="card-expand">🏛️ Nas galerias: proibido portar arma, faixas ou fazer manifestações. Ex-Deputados: acesso facilitado às áreas comuns, mas não a dependências restritas. Jornalistas: acesso regulamentado por ato da Mesa. Lobby/representantes de entidades: credenciamento necessário.</div>
+        <div class="card-tags"><span class="tag">Acesso</span><span class="tag">Galerias</span><span class="tag">Ordem</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 269–271</div>
+        <div class="card-topic">Decoro Parlamentar — Penalidades</div>
+        <div class="card-summary">Penalidades em ordem crescente: 1) Censura verbal — aplicada pelo Presidente. 2) Censura escrita — aplicada pela Mesa. 3) Suspensão do mandato — aprovada pelo Plenário. 4) Perda do mandato — aprovada pelo Plenário.</div>
+        <div class="card-expand">⚖️ Atos contrários ao decoro: abuso de prerrogativas, percepção de vantagens indevidas, procedimento incompatível com a dignidade da Casa. Suspensão cautelar (Res. 11/2024): Mesa propõe em até 5 dias úteis → Conselho de Ética decide em 3 dias úteis → recurso ao Plenário (maioria absoluta para aprovar/manter).</div>
+        <div class="card-tags"><span class="tag">Censura verbal</span><span class="tag">Censura escrita</span><span class="tag">Suspensão</span></div>
+      </div>
+      <div class="card" onclick="toggleCard(this)">
+        <div class="card-arrow">›</div>
+        <div class="card-num">Arts. 272–273</div>
+        <div class="card-topic">Perda de Mandato — Cassação</div>
+        <div class="card-summary">Perda declarada pela Mesa: incisos I e II do art. 55 CF. Perda decidida pelo Plenário: incisos III, IV e V. Votação: nominal e ostensiva, maioria absoluta. Defesa: min. 10 sessões.</div>
+        <div class="card-expand">📋 Art. 55 CF — 6 casos de perda: I- condenação criminal transitada em julgado; II- declaração da JE por infidelidade; III- procedimento incompatível com decoro; IV- absenteísmo injustificado (1/3 das sessões); V- perda/suspensão de direitos políticos; VI- decreto da JE (LOPP). Incisos I e II: Mesa declara. III, IV e V: Plenário decide por maioria absoluta em voto nominal.</div>
+        <div class="card-tags"><span class="tag">Perda de mandato</span><span class="tag">Art. 55 CF</span><span class="tag">Maioria absoluta</span></div>
+      </div>
+    </div>
+    <div class="tip">
+      <div class="tip-icon">💡</div>
+      <div><strong>Macete — Bloco 4</strong>
+      <p>Polícia da Câmara = comando supremo do Presidente. Penalidades: verbal (Presidente) → escrita (Mesa) → suspensão (Plenário) → perda (Plenário). Perda por decoro = maioria absoluta em voto nominal. Art. 55 CF: I e II = Mesa; III, IV e V = Plenário.</p></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUIZ BAR -->
+<div class="quiz-bar">
+  <span>Testar conhecimento:</span>
+  <button class="quiz-btn" onclick="openQuiz()">🎯 Quiz Rápido</button>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+    <span id="progText" style="font-size:12px;color:var(--muted)">0/8</span>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="modal-bg" id="quizModal">
+  <div class="modal">
+    <h3>🎯 Quiz — RICD</h3>
+    <div class="q-meta" id="qMeta">Questão 1 de 8</div>
+    <div class="q-text" id="qText"></div>
+    <div class="q-options" id="qOpts"></div>
+    <div class="q-feedback" id="qFeedback"></div>
+    <div class="q-nav">
+      <button class="btn-close" onclick="closeQuiz()">Fechar</button>
+      <div class="q-score" id="qScore">Acertos: 0</div>
+      <button class="btn-next" id="btnNext" onclick="nextQ()" style="display:none">Próxima ›</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showBlock(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (id === 'all') {
+    document.querySelectorAll('.block').forEach(b => b.classList.add('visible'));
+  } else {
+    document.querySelectorAll('.block').forEach(b => b.classList.remove('visible'));
+    document.getElementById(id).classList.add('visible');
+  }
+}
+function toggleCard(card) { card.classList.toggle('open'); }
+
+const questions = [
+  { q:"Qual é o quorum mínimo para abertura das sessões ordinárias da Câmara dos Deputados?", opts:["Maioria absoluta (257)","1/3 dos Deputados (171)","1/10 dos Deputados (~52)","2/3 dos Deputados (342)"], ans:2, fb:"✅ O quorum de abertura é 1/10 dos Deputados (~52). Para deliberar é necessária a presença da maioria absoluta (257). Arts. 79 RICD." },
+  { q:"O cargo de Presidente da Câmara dos Deputados é privativo de:", opts:["Deputado com mais de 2 legislaturas","Brasileiro nato","O Deputado mais idoso","Qualquer Deputado eleito"], ans:1, fb:"✅ Art. 16, parágrafo único: o cargo de Presidente é privativo de brasileiro nato." },
+  { q:"Uma PEC é aprovada na Câmara com qual quorum e em quantos turnos?", opts:["Maioria simples em votação única","Maioria absoluta em dois turnos","3/5 dos Deputados em dois turnos","2/3 dos Deputados em um turno"], ans:2, fb:"✅ PEC exige 3/5 (308 Deputados) em dois turnos, com interstício de 5 dias úteis entre eles. Art. 232 RICD + Art. 60 §2º CF." },
+  { q:"Uma Medida Provisória caduca automaticamente após quantos dias sem apreciação?", opts:["60 dias","90 dias","120 dias","180 dias"], ans:2, fb:"✅ MP tem validade de 60 dias prorrogáveis automaticamente por mais 60 = 120 dias no total. Art. 62 §3º CF + Art. 226 RICD." },
+  { q:"A polícia interna da Câmara dos Deputados é dirigida por:", opts:["Secretário-Geral da Mesa","Diretoria de Segurança","Presidente da Câmara","Colégio de Líderes"], ans:2, fb:"✅ Art. 17, VI, h: compete ao Presidente 'dirigir, com suprema autoridade, a polícia da Câmara'." },
+  { q:"Para a formação de um Bloco Parlamentar, o mínimo de Deputados exigido é:", opts:["5% dos membros da Câmara","3% dos membros da Câmara","10 Deputados","1/10 dos membros da Câmara"], ans:1, fb:"✅ Art. 12, §3º: não é admitida a formação de Bloco com menos de três centésimos (3%) dos membros da Câmara." },
+  { q:"O prazo para o Congresso Nacional apreciar o veto presidencial é de:", opts:["15 dias corridos","30 dias corridos","45 dias úteis","60 dias corridos"], ans:1, fb:"✅ O CN tem 30 dias corridos para apreciar o veto em sessão conjunta. Não apreciado no prazo, trava a pauta. Art. 66 §6º CF." },
+  { q:"A penalidade de censura verbal a Deputado é aplicada por:", opts:["Mesa da Câmara","Conselho de Ética","Presidente da Câmara","Plenário da Câmara"], ans:2, fb:"✅ Art. 17, I, x: compete ao Presidente aplicar 'censura verbal a Deputado'. A censura escrita é aplicada pela Mesa (Art. 15, XV)." }
+];
+
+let cur = 0, score = 0, answered = false;
+
+function openQuiz() {
+  cur = 0; score = 0; answered = false;
+  document.getElementById('progFill').style.width = '0%';
+  document.getElementById('progText').textContent = '0/8';
+  document.getElementById('quizModal').classList.add('open');
+  renderQ();
+}
+function closeQuiz() { document.getElementById('quizModal').classList.remove('open'); }
+function renderQ() {
+  const q = questions[cur];
+  document.getElementById('qMeta').textContent = 'Questão '+(cur+1)+' de '+questions.length;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('qFeedback').classList.remove('show');
+  document.getElementById('qFeedback').textContent = '';
+  document.getElementById('btnNext').style.display = 'none';
+  document.getElementById('qScore').textContent = 'Acertos: '+score;
+  answered = false;
+  const opts = document.getElementById('qOpts');
+  opts.innerHTML = '';
+  q.opts.forEach((o,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-opt'; btn.textContent = o;
+    btn.onclick = () => selectOpt(i, btn);
+    opts.appendChild(btn);
+  });
+}
+function selectOpt(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[cur];
+  const allOpts = document.querySelectorAll('.q-opt');
+  if (idx === q.ans) { btn.classList.add('correct'); score++; }
+  else { btn.classList.add('wrong'); allOpts[q.ans].classList.add('correct'); }
+  const fb = document.getElementById('qFeedback');
+  fb.textContent = q.fb; fb.classList.add('show');
+  document.getElementById('btnNext').style.display = 'block';
+  document.getElementById('qScore').textContent = 'Acertos: '+score;
+  const pct = Math.round((cur+1)/questions.length*100);
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progText').textContent = (cur+1)+'/'+questions.length;
+}
+function nextQ() {
+  cur++;
+  if (cur >= questions.length) {
+    document.getElementById('qText').textContent = '✅ Fim do quiz! Você acertou '+score+' de '+questions.length+' questões.';
+    document.getElementById('qOpts').innerHTML = '';
+    document.getElementById('qFeedback').classList.remove('show');
+    document.getElementById('btnNext').style.display = 'none';
+    document.getElementById('qMeta').textContent = 'Resultado Final';
+    document.getElementById('qScore').textContent = score+'/'+questions.length;
+    document.getElementById('progFill').style.width = '100%';
+    document.getElementById('progText').textContent = questions.length+'/'+questions.length;
+  } else { renderQ(); }
+}
+</script>
+</body>
+</html>
